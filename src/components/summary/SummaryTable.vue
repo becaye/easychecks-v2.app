@@ -11,6 +11,7 @@
             <th scope="col">Priorité</th>
             <th scope="col">Statut</th>
             <th scope="col">Commentaire</th>
+            <th scope="col">Lien</th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +32,14 @@
               </span>
             </td>
             <td>{{ result.comment || '—' }}</td>
+            <td>
+              <RouterLink
+                :to="{ path: `/audits/${store.currentAudit?.id}`, hash: `#criterion-${criterion.id}` }"
+                class="fr-link fr-text--sm"
+              >
+                Voir dans l'audit
+              </RouterLink>
+            </td>
           </tr>
           <tr v-if="filteredRows.length === 0">
             <td colspan="4" class="fr-text--grey">Aucun critère ne correspond au filtre.</td>
@@ -43,6 +52,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { DsfrBadge } from '@gouvminint/vue-dsfr'
 import CriterionFilters from '@/components/criteria/CriterionFilters.vue'
 import { useAuditStore } from '@/stores/auditStore'

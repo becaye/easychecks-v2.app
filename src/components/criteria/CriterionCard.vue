@@ -1,5 +1,6 @@
 <template>
   <article
+    :id="`criterion-${criterion.id}`"
     class="criterion-card fr-p-3w fr-mb-2w"
     :aria-label="`Critère : ${criterion.title}`"
   >

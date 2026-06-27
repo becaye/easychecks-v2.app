@@ -15,7 +15,7 @@
         <DsfrCard
           :title="audit.title"
           :description="cardDescription(audit)"
-          :link="{ to: `/audits/${audit.id}`, label: 'Consulter l\'audit' }"
+          :link="`/audits/${audit.id}`"
           size="sm"
           class="audit-card"
         >
