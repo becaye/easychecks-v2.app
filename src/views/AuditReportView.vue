@@ -18,6 +18,8 @@
         </RouterLink>
       </div>
 
+      <SaveStatusAlert />
+
       <ExportActions
         @export-json="store.exportAuditAsJson(audit!.id)"
         @export-html="store.exportAuditAsHtml(audit!.id)"
@@ -35,6 +37,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { DsfrBreadcrumb, DsfrAlert } from '@gouvminint/vue-dsfr'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import SaveStatusAlert from '@/components/layout/SaveStatusAlert.vue'
 import ExportActions from '@/components/report/ExportActions.vue'
 import ReportPreview from '@/components/report/ReportPreview.vue'
 import { useAuditStore } from '@/stores/auditStore'

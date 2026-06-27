@@ -26,6 +26,8 @@
         </div>
       </div>
 
+      <SaveStatusAlert />
+
       <SummaryCards v-if="summary" :summary="summary" />
       <SummaryTable />
     </template>
@@ -37,6 +39,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { DsfrBreadcrumb, DsfrAlert } from '@gouvminint/vue-dsfr'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import SaveStatusAlert from '@/components/layout/SaveStatusAlert.vue'
 import SummaryCards from '@/components/summary/SummaryCards.vue'
 import SummaryTable from '@/components/summary/SummaryTable.vue'
 import { useAuditStore } from '@/stores/auditStore'

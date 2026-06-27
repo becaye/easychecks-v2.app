@@ -14,8 +14,16 @@ import { useAuditStore } from '@/stores/auditStore'
 const store = useAuditStore()
 
 const message = computed(() => {
-  if (store.saveStatus === 'saved') return 'Modifications enregistrées.'
-  if (store.saveStatus === 'error') return 'Erreur lors de l\'enregistrement.'
-  return ''
+  // Provide short, clear messages for screen readers for each saveStatus
+  switch (store.saveStatus) {
+    case 'saving':
+      return "Enregistrement en cours. Vos modifications sont en train d'être sauvegardées."
+    case 'saved':
+      return 'Modifications enregistrées.'
+    case 'error':
+      return "Erreur lors de l'enregistrement. Vérifiez votre espace de stockage ou réessayez."
+    default:
+      return ''
+  }
 })
 </script>

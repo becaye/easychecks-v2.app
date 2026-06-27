@@ -24,25 +24,10 @@
           >
             Rapport
           </RouterLink>
-        </div>
+         </div>
 
-        <DsfrAlert
-          v-if="store.saveStatus === 'saved'"
-          type="success"
-          title="Modifications enregistrées"
-          class="fr-mb-2w"
-          :closeable="false"
-          small
-        />
-        <DsfrAlert
-          v-if="store.saveStatus === 'error'"
-          type="error"
-          title="Erreur lors de l'enregistrement"
-          class="fr-mb-2w"
-          :closeable="false"
-          small
-        />
-      </div>
+        <SaveStatusAlert />
+       </div>
 
       <AuditMeta :audit="audit" />
 
@@ -56,6 +41,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { DsfrBreadcrumb, DsfrAlert } from '@gouvminint/vue-dsfr'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import SaveStatusAlert from '@/components/layout/SaveStatusAlert.vue'
 import AuditMeta from '@/components/audit/AuditMeta.vue'
 import CriteriaList from '@/components/criteria/CriteriaList.vue'
 import { useAuditStore } from '@/stores/auditStore'
