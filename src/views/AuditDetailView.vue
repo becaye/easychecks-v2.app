@@ -49,8 +49,8 @@ import { useAuditStore } from '@/stores/auditStore'
 const route = useRoute()
 const store = useAuditStore()
 
-onMounted(() => {
-  store.loadAudits()
+onMounted(async () => {
+  await store.loadAudits()
   store.setCurrentAudit(route.params.id as string)
 })
 

@@ -31,8 +31,8 @@ import { useAuditStore } from '@/stores/auditStore'
 
 const store = useAuditStore()
 
-onMounted(() => {
-  store.loadAudits()
+onMounted(async () => {
+  await store.loadAudits()
 })
 
 const breadcrumb = [{ text: 'Accueil', to: '/' }]

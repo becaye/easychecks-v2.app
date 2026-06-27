@@ -1,7 +1,7 @@
 # AGENTS.md - EasyChecks Accessibility Audit Tool
 
 ## Project Overview
-**EasyChecks** is a Vue 3 SPA for conducting digital accessibility audits against French WCAG standards. Audits are stored locally in browser localStorage with export capabilities (JSON/HTML).
+**EasyChecks** is a Vue 3 SPA for conducting digital accessibility audits against French WCAG standards. Audits are stored locally using a **hybrid IndexedDB + localStorage** system for maximum reliability across browsers and scenarios (private browsing, quota exceeded, etc.).
 
 **Stack**: Vue 3 + TypeScript + Vite + Pinia + Vue Router + DSFR (Design System Français)
 
@@ -35,9 +35,18 @@ Key derived state (computed):
 - `criteriaWithResults`: Merges static criteria with current audit's results
 - `auditSummary`: Calculates {c, nc, nt, na, okPercentage}
 
-### localStorage Key
-- Storage key: `'easy-checks-audits'` (JSON array of Audit objects)
-- Graceful degradation: silent failure if quota exceeded or private browsing
+### Hybrid Storage System (IndexedDB + localStorage)
+- **Primary**: IndexedDB (async, ~50MB quota, persists in private mode)
+- **Fallback**: localStorage (~5-10MB quota, synchronous)
+- **Behavior**:
+  - Load: IndexedDB first, then localStorage fallback
+  - Save: Both IndexedDB and localStorage (redundancy)
+  - Auto-detect best backend on module init
+- **Key functions** in `src/utils/storage.ts`:
+  - `loadAuditsFromStorage()` → Promise<Audit[]>
+  - `saveAuditsToStorage(audits)` → Promise<void>
+  - Non-blocking saves (background execution for debounce responsiveness)
+- **Result**: Audits persist reliably even if quota exceeded or in private browsing mode
 
 ---
 
@@ -100,9 +109,10 @@ Project uses `@gouvminint/vue-dsfr` (Vue 3 wrapper for French Design System):
 | `src/router/index.ts` | Route definitions; note lazy-loaded views |
 | `src/components/layout/AppLayout.vue` | Layout shell for all views |
 | `src/components/layout/SaveStatusAlert.vue` | DSFR alert component for auto-save feedback (saving/saved/error) |
+| `src/utils/storage.ts` | Unified storage abstraction (IndexedDB + localStorage fallback) |
+| `src/utils/indexedDbStorage.ts` | IndexedDB wrapper implementation |
 | `src/utils/calculateSummary.ts` | Summary calculation (total, c, nc, nt, na, okPercentage %) |
 | `src/utils/exportJson.ts` + `exportHtml.ts` | Export orchestration; handle status labels |
-| `src/utils/localStorage.ts` | Simple localStorage wrapper; silent failure on quota |
 | `src/components/audit/AuditForm.vue` | New/edit audit form; emits submit with metadata |
 
 ---
@@ -125,13 +135,15 @@ npm run type-check             # TypeScript validation (Vue 3.x strict mode)
 ## Conventions & Gotchas
 
 1. **Always sync currentAudit with audits array** when mutating; use `currentAudit.value = { ...audit }` to trigger reactivity
-2. **Status null handling**: Some fields allow `null` status; treat as "untested"
-3. **Timestamps are ISO strings**, not Dates (for JSON serialization)
-4. **French language throughout** — all labels, validation messages, UI text in French
-5. **UUID for audit IDs** — generated via `uuid` package; never hardcode
-6. **Utility function pattern**: Export helpers (json/html) use inline helpers (sanitizeFilename, statusLabel, escHtml)
-7. **No API calls** — this is fully client-side; persistence = localStorage only
-8. **Computed properties are eager** — avoid expensive calculations in templates
+2. **Storage is now async**: `loadAuditsFromStorage()` and `saveAuditsToStorage()` return Promises; use `await` in views (onMounted hooks)
+3. **Save operations are non-blocking**: `persist()` and `persistWithStatus()` execute saves in background to keep debounce responsive
+4. **Status null handling**: Some fields allow `null` status; treat as "untested"
+5. **Timestamps are ISO strings**, not Dates (for JSON serialization)
+6. **French language throughout** — all labels, validation messages, UI text in French
+7. **UUID for audit IDs** — generated via `uuid` package; never hardcode
+8. **Utility function pattern**: Export helpers (json/html) use inline helpers (sanitizeFilename, statusLabel, escHtml)
+9. **No API calls** — this is fully client-side; persistence = hybrid IndexedDB/localStorage only
+10. **Computed properties are eager** — avoid expensive calculations in templates
 
 ---
 

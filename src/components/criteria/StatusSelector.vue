@@ -39,7 +39,7 @@ defineEmits<{
   'update:modelValue': [value: CriterionResult['status']]
 }>()
 
-const options: { value: CriterionResult['status']; label: string }[] = [
+const options: Array<{ value: Exclude<CriterionResult['status'], null>; label: string }> = [
   { value: 'c', label: 'Conforme' },
   { value: 'nc', label: 'Non conforme' },
   { value: 'nt', label: 'Non testé' },

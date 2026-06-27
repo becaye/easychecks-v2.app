@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import type { Audit, CriterionResult } from '@/types/audit'
 import { initialCriteria } from '@/data/initialCriteria'
-import { loadAuditsFromStorage, saveAuditsToStorage } from '@/utils/localStorage'
+import { loadAuditsFromStorage, saveAuditsToStorage } from '@/utils/storage'
 import { calculateSummary } from '@/utils/calculateSummary'
 import { exportAuditAsJson } from '@/utils/exportJson'
 import { exportAuditAsHtml } from '@/utils/exportHtml'
@@ -38,8 +38,8 @@ export const useAuditStore = defineStore('audits', () => {
   })
 
   // Actions
-  function loadAudits() {
-    audits.value = loadAuditsFromStorage()
+  async function loadAudits() {
+    audits.value = await loadAuditsFromStorage()
   }
 
   function createAudit(data: {
@@ -143,11 +143,10 @@ export const useAuditStore = defineStore('audits', () => {
   }
 
   function persist() {
-    try {
-      saveAuditsToStorage(audits.value)
-    } catch {
+    // Save in background without awaiting (to keep debounce responsive)
+    saveAuditsToStorage(audits.value).catch(() => {
       saveStatus.value = 'error'
-    }
+    })
   }
 
   let saveTimer: ReturnType<typeof setTimeout> | null = null

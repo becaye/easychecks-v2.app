@@ -1,3 +1,8 @@
+/**
+ * @deprecated Use `src/utils/storage.ts` instead (IndexedDB + localStorage fallback)
+ * This file is kept for reference/backward compatibility only.
+ */
+
 import type { Audit } from '@/types/audit'
 
 const STORAGE_KEY = 'easy-checks-audits'
