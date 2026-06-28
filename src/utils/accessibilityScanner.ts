@@ -53,11 +53,22 @@ async function loadAxe() {
  * Scan a URL for accessibility issues using axe-core
  * Note: This scan happens in an iframe, so CORS headers must allow it
  */
-export async function scanAccessibility(url: string): Promise<AccessibilityScanResult | null> {
-  try {
-    // Validate URL
-    const parsedUrl = new URL(url)
+export async function scanAccessibility(url: string): Promise<AccessibilityScanResult> {
+  // Validate URL
+  const parsedUrl = new URL(url)
 
+  // Iframe-based scanning only works for same-origin URLs
+  const appOrigin = window.location.origin
+  const targetOrigin = parsedUrl.origin
+  if (targetOrigin !== appOrigin) {
+    throw new Error(
+      `URL cross-origin détectée (${targetOrigin} ≠ ${appOrigin}).\n` +
+      `Le scan par iframe ne peut pas accéder au contenu cross-origin par mesure de sécurité navigateur.\n` +
+      `Pour scanner ce site, le serveur cible doit autoriser l'intégration en iframe (en-têtes X-Frame-Options / CSP).`,
+    )
+  }
+
+  try {
     // Create iframe to isolate the scan
     const iframe = document.createElement('iframe')
     iframe.src = parsedUrl.toString()
@@ -122,17 +133,10 @@ export async function scanAccessibility(url: string): Promise<AccessibilityScanR
         return
       }
 
-      axeGlobal.run(
-        {
-          // Run all rules
-          runOnly: {
-            type: 'all',
-          },
-        },
-        (results: AxeResults) => {
-          resolve(results)
-        },
-      )
+      axeGlobal
+        .run({ runOnly: { type: 'all' } })
+        .then(resolve)
+        .catch(reject)
     })
 
     // Clean up iframe
@@ -142,7 +146,8 @@ export async function scanAccessibility(url: string): Promise<AccessibilityScanR
     return transformAxeResults(url, results)
   } catch (error) {
     console.error('Accessibility scan failed:', error)
-    return null
+    if (error instanceof Error) throw error
+    throw new Error(typeof error === 'string' ? error : JSON.stringify(error))
   }
 }
 

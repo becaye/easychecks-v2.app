@@ -1,9 +1,9 @@
 <template>
-  <div class="scan-panel fr-p-3w fr-mb-3w" :class="{ 'scan-panel--active': isScanning }">
+  <div v-if="isSameOrigin" class="scan-panel fr-p-3w fr-mb-3w" :class="{ 'scan-panel--active': isScanning }">
     <div class="scan-panel__header">
       <h3 class="fr-h5 fr-mb-1w">Scan d'accessibilité automatique (axe-core)</h3>
       <p class="fr-text--sm fr-text--grey fr-mb-0">
-        Détecte les violations WCAG automatiquement sur l'URL cible. Le scan se fait dans un iframe.
+        Détecte les violations WCAG automatiquement sur l'URL cible.
       </p>
     </div>
 
@@ -25,11 +25,8 @@
 
     <!-- Scan error -->
     <div v-if="scanError" class="fr-alert fr-alert--error fr-mb-2w">
-      <p class="fr-text--sm">
+      <p class="fr-text--sm" style="white-space: pre-line">
         ❌ Erreur du scan : {{ scanError }}
-      </p>
-      <p class="fr-text--xs fr-text--grey fr-mt-1w">
-        Causes possibles : CORS, site inaccessible, timeout, ou contenu bloqué.
       </p>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-mt-2w" @click="runScan">
         Réessayer
@@ -144,6 +141,14 @@ const props = defineProps<{
   auditUrl: string
 }>()
 
+const isSameOrigin = computed(() => {
+  try {
+    return new URL(props.auditUrl).origin === window.location.origin
+  } catch {
+    return false
+  }
+})
+
 const emit = defineEmits<{
   'apply-suggestion': [suggestion: ScanSuggestions]
   'apply-all-suggestions': [suggestions: ScanSuggestions[]]
@@ -163,12 +168,7 @@ async function runScan() {
   scanError.value = null
 
   try {
-    const result = await scanAccessibility(props.auditUrl)
-    if (result) {
-      latestScan.value = result
-    } else {
-      scanError.value = 'Impossible de scanner l\'URL (CORS, timeout, ou site inaccessible)'
-    }
+    latestScan.value = await scanAccessibility(props.auditUrl)
   } catch (error) {
     scanError.value =
       error instanceof Error
