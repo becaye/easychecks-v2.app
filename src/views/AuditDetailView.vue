@@ -16,7 +16,7 @@
             label="Modifier"
             secondary
             icon="fr-icon-edit-line"
-            icon-right
+            icon-left
             @click="openEdit"
           />
           <RouterLink
